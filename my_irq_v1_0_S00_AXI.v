@@ -232,8 +232,8 @@
         begin
           for(idx = 0; idx < 8; idx = idx + 1)
           begin
-            pwm_value_reg[idx] <= 0;
-            pwm_range_reg[idx] <= 0;
+            pwm_value_reg[idx] <= 8'h00;
+            pwm_range_reg[idx] <= 8'hFF;
           end
           pwm_ctrl_reg <= 0;
           slv_reg17    <= 0;
@@ -249,29 +249,26 @@
         if (slv_reg_wren)
         begin
           axi_reg_idx = axi_awaddr[ADDR_LSB+OPT_MEM_ADDR_BITS:ADDR_LSB];
-          if(axi_reg_idx < 8)
-          begin
-            for ( byte_index = 0; byte_index <= (C_S_AXI_DATA_WIDTH/8)-1; byte_index = byte_index+1 )
-            begin
+          if(axi_reg_idx < 8) begin
+            for ( byte_index = 0; byte_index <= (C_S_AXI_DATA_WIDTH/8)-1; byte_index = byte_index+1 ) begin
               if ( S_AXI_WSTRB[byte_index] == 1 ) begin
                 // Respective byte enables are asserted as per write strobes
                 // Slave register 0
                 pwm_value_reg[axi_reg_idx][(byte_index*8) +: 8] <= S_AXI_WDATA[(byte_index*8) +: 8];
               end
+              //pwm_value_reg[axi_reg_idx] <= S_AXI_WDATA;
             end
-          end else if(axi_reg_idx < 16)
-          begin
-            for ( byte_index = 0; byte_index <= (C_S_AXI_DATA_WIDTH/8)-1; byte_index = byte_index+1 )
-            begin
-              if ( S_AXI_WSTRB[byte_index] == 1 )
-              begin
+          end else if(axi_reg_idx < 16) begin
+            for ( byte_index = 0; byte_index <= (C_S_AXI_DATA_WIDTH/8)-1; byte_index = byte_index+1 ) begin
+              if ( S_AXI_WSTRB[byte_index] == 1 ) begin
                 // Respective byte enables are asserted as per write strobes
                 // Slave register 1
-                pwm_value_reg[axi_reg_idx - 8][(byte_index*8) +: 8] <= S_AXI_WDATA[(byte_index*8) +: 8];
+                pwm_range_reg[axi_reg_idx - 8][(byte_index*8) +: 8] <= S_AXI_WDATA[(byte_index*8) +: 8];
               end
             end
-          end
-            case ( axi_awaddr[ADDR_LSB+OPT_MEM_ADDR_BITS:ADDR_LSB] )
+          end else begin
+            //case ( axi_awaddr[ADDR_LSB+OPT_MEM_ADDR_BITS:ADDR_LSB] )
+            case (axi_reg_idx)
               5'h10:
                 for ( byte_index = 0; byte_index <= (C_S_AXI_DATA_WIDTH/8)-1; byte_index = byte_index+1 )
                   if ( S_AXI_WSTRB[byte_index] == 1 ) begin
@@ -329,22 +326,23 @@
                     slv_reg23[(byte_index*8) +: 8] <= S_AXI_WDATA[(byte_index*8) +: 8];
                   end
               default :
-              begin
-                for(idx = 0; idx < 8; idx = idx + 1)
-                begin
-                  pwm_value_reg[idx] <= pwm_value_reg[idx];
-                  pwm_range_reg[idx] <= pwm_range_reg[idx];
-                end
-                  pwm_ctrl_reg <= pwm_ctrl_reg;
-                  slv_reg17 <= slv_reg17;
-                  slv_reg18 <= slv_reg18;
-                  slv_reg19 <= slv_reg19;
-                  slv_reg20 <= slv_reg20;
-                  slv_reg21 <= slv_reg21;
-                  slv_reg22 <= slv_reg22;
-                  slv_reg23 <= slv_reg23;
-                end
-            endcase
+                  begin
+                    for(idx = 0; idx < 8; idx = idx + 1)
+                    begin
+                      pwm_value_reg[idx] <= pwm_value_reg[idx];
+                      pwm_range_reg[idx] <= pwm_range_reg[idx];
+                    end
+                    pwm_ctrl_reg <= pwm_ctrl_reg;
+                    slv_reg17 <= slv_reg17;
+                    slv_reg18 <= slv_reg18;
+                    slv_reg19 <= slv_reg19;
+                    slv_reg20 <= slv_reg20;
+                    slv_reg21 <= slv_reg21;
+                    slv_reg22 <= slv_reg22;
+                    slv_reg23 <= slv_reg23;
+                  end
+              endcase
+            end
           end
         end
       end
@@ -507,9 +505,8 @@
     assign pwm_en = pwm_ctrl_reg[7:0];
     generate
         genvar i;
-        for(i = 0; i < 8; i = i + 1)
-        begin
-            PWM_UNIT pwm_unit_i(
+        for(i = 0; i < 8; i = i + 1) begin
+            PWM_UNIT pwm_unit(
                 .pwm_out    (PWM_OUT[i]           ),
                 .pwm_period (pwm_period[i]        ),
                 .pwm_value  (pwm_value_reg[i][7:0]),
@@ -527,7 +524,8 @@
         .clk_in  (S_AXI_ACLK   ),
         .reset   (S_AXI_ARESETN),
         .clk_out (pwm_clk      ),
-        .clk_div (32'h000001F4 )
+        //.clk_div (32'h000001F4 )
+        .clk_div (32'h00000001 )
     );
 
     // Interrupt generation

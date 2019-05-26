@@ -21,10 +21,8 @@ module testbench_top ();
     bit [31:0]rdata;
     bit  axi_aclk;
     bit  axi_aresetn;
-    bit  bresp;
-    bit  bvalid;
-    bit  bready;
-    bit  rresp;
+    bit  [1:0]bresp;
+    bit  [1:0]rresp;
 
     // Interface
     axi_if axi_if_inst(.clk(axi_aclk), .reset(axi_aresetn));
@@ -48,6 +46,7 @@ module testbench_top ();
 
     // Device Under test
     my_irq_v1_0 dut_irq(
+        .PWM_OUT         (PWM_OUT),
         .s00_axi_aclk    (axi_aclk),
         .s00_axi_aresetn (axi_aresetn),
         .s00_axi_awaddr  (axi_if_inst.mem_addr),
@@ -55,17 +54,19 @@ module testbench_top ();
         .s00_axi_awvalid (axi_if_inst.aw_valid),
         .s00_axi_awready (axi_if_inst.aw_ready),
         .s00_axi_wdata   (axi_if_inst.mem_data),
-        .s00_axi_wstrb   (4'h0),
+        .s00_axi_wstrb   (4'hF),
         .s00_axi_wvalid  (axi_if_inst.aw_valid),
         .s00_axi_wready  (axi_if_inst.wdata_ready),
         .s00_axi_bresp   (bresp),
         .s00_axi_bvalid  (axi_if_inst.b_valid),
         .s00_axi_bready  (axi_if_inst.b_ready),
         .s00_axi_araddr  (axi_if_inst.mem_addr),
+        //.s00_axi_araddr  (7'h00),
         .s00_axi_arprot  (2'h0),
         .s00_axi_arvalid (axi_if_inst.ar_valid),
         .s00_axi_arready (axi_if_inst.ar_ready),
         .s00_axi_rdata   (rdata),
+        //.s00_axi_rdata   (axi_if_inst.mem_data),
         .s00_axi_rresp   (rresp),
         .s00_axi_rvalid  (axi_if_inst.rdata_valid),
         .s00_axi_rready  (axi_if_inst.rdata_ready)

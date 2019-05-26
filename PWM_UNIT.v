@@ -37,20 +37,16 @@ module PWM_UNIT(
     // Update the register values only when counter saturates
     always @ ( posedge pwm_clk ) begin
         if ( pwm_reset == 1'b0 ) begin
-            range_reg   = 8'hFF;
             value_reg   = 8'h00;
-        end
-
-        else begin
-            if( pwm_period == 1'b1 ) begin
+            range_reg   = 8'hFF;
+        end else begin
+            //if( pwm_period == 1'b1 ) begin
                 value_reg   <= pwm_value;
                 range_reg   <= pwm_range;
-            end
-
-            else begin
-                value_reg   <= value_reg;
-                range_reg   <= range_reg;
-            end
+            //end else begin
+            //    value_reg   <= value_reg;
+            //    range_reg   <= range_reg;
+            //end
         end
     end
 
@@ -59,21 +55,17 @@ module PWM_UNIT(
     begin
         if ( pwm_reset == 1'b0 ) begin
             counter_reg     <= 8'h00;
-        end
-
-        else begin
+        end else begin
             if( counter_reg < range_reg ) begin
                 counter_reg <= counter_reg + 1;
-            end
-
-            else begin
+            end else begin
                 counter_reg <= 8'h00;
             end
         end
     end
 
     // PWM output
-    assign pwm_out = value_reg > counter_reg;
+    assign pwm_out = pwm_en & (value_reg > counter_reg);
 
     // Counter period output
     assign pwm_period = counter_reg >= range_reg;

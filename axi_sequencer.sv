@@ -18,7 +18,7 @@ class axi_sequencer;
 
     // AXI bus request
     task axi_request();
-        repeat(256) begin
+        repeat(17) begin
             // Generate requests and push it to mailbox
             tr_item = new();
             seq_mbx.put(tr_item);
