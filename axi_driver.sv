@@ -39,7 +39,7 @@ class axi_driver;
             axi_transaction trans_item;
             seq_mbx.get(trans_item);
 
-            `DRIV_IF.mem_addr <= {25'h00000000, trans_item.target_addr};
+            `DRIV_IF.mem_addr <= trans_item.target_addr;
             // Write access
             if(trans_item.rw == 1'b0) begin
                 $display("Write access");
@@ -49,7 +49,7 @@ class axi_driver;
                 `DRIV_IF.wdata_valid <= 1'b1;
                 `DRIV_IF.mem_data    <= trans_item.write_data;
                 `DRIV_IF.b_ready     <= 0;
-                $display("Write address: %x", `DRIV_IF.mem_addr);
+                $display("Write address: %x", trans_item.target_addr);
                 $display("Write data: %x", trans_item.write_data);
                 while(!(`DRIV_IF.wdata_ready && `DRIV_IF.aw_ready)) begin
                     @ (posedge axi_vif.clk);

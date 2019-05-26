@@ -15,8 +15,8 @@ class axi_transaction;
     // Sequential access (NOTE: randomize() doesn't work)
     function new();
         target_addr[6:0] = addr;
-        if(rw_toggle == 1) begin
-            addr         = addr + 1;
+        if(rw_toggle) begin
+            addr         = addr + 4;
         end else begin
             write_data   = data;
             data         = data + 32'hd;
