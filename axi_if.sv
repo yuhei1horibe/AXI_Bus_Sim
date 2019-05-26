@@ -18,7 +18,7 @@ interface axi_if(input logic clk, reset);
 
     // Clocking block
     clocking driver_cb @(posedge clk);
-        default input #1 output #1;
+        default input #10 output #10;
         output mem_data;
         output mem_addr;
         output ar_valid;
