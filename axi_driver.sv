@@ -11,7 +11,7 @@ class axi_driver;
     virtual axi_if axi_vif;
     mailbox seq_mbx;
 
-    int     repeat_cnt = 17;
+    int     repeat_cnt = 34;
 
     function new(virtual axi_if axi_vif, mailbox seq_mbx);
         this.axi_vif = axi_vif;
