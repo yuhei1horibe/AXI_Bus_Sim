@@ -6,6 +6,7 @@ What this simulation does is;
 1. Module reset
 2. Write 0xFF to PWM control register (address 0x40, all 8 PWM units are enabled)
 3. Write PWM values to 8 value registers sequentially
+4. Update PWM ranges for 8 PWM units (Using 4 different settings).
 
 Simulated by Intel ModelSim.
 Simulation results are below.
