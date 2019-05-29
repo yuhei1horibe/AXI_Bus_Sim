@@ -2,26 +2,26 @@
 `ifndef AXISEQ_GUARD
 `define AXISEQ_GUARD
 
-`include "axi_transaction.sv"
+`include "pwm_init_trans.sv"
 
 // Memory access sequence generator
 class axi_sequencer;
     // mailbox
-    mailbox seq_mbx;
+    mailbox init_mbx;
 
     // Transaction item
-    axi_transaction tr_item;
+    pwm_init_trans pwm_init_item;
 
-    function new(mailbox seq_mbx);
-        this.seq_mbx = seq_mbx;
+    function new(mailbox init_mbx);
+        this.init_mbx = init_mbx;
     endfunction
 
-    // AXI bus request
-    task axi_request();
-        repeat(34) begin
+    // PWM initialization
+    task pwm_init();
+        repeat(pwm_init_trans::get_data_size()) begin
             // Generate requests and push it to mailbox
-            tr_item = new();
-            seq_mbx.put(tr_item);
+            pwm_init_item = new();
+            init_mbx.put(pwm_init_item);
         end
     endtask
 endclass

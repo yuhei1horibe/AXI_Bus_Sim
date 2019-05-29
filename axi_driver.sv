@@ -3,7 +3,7 @@
 `define AXIDRV_GUARD
 
 `include "axi_if.sv"
-`include "axi_transaction.sv"
+`include "pwm_init_trans.sv"
 
 `define DRIV_IF axi_vif.DRIVER.driver_cb
 
@@ -11,11 +11,12 @@ class axi_driver;
     virtual axi_if axi_vif;
     mailbox seq_mbx;
 
-    int     repeat_cnt = 34;
+    // Get number of transaction
+    const int num_transactions;
 
     function new(virtual axi_if axi_vif, mailbox seq_mbx);
-        this.axi_vif = axi_vif;
-        this.seq_mbx = seq_mbx;
+        this.axi_vif          = axi_vif;
+        this.seq_mbx          = seq_mbx;
     endfunction
 
     // Reset
@@ -35,10 +36,8 @@ class axi_driver;
 
     // AXI transactions
     task axi_read_write();
-        repeat(repeat_cnt) begin
-            axi_transaction trans_item;
-            seq_mbx.get(trans_item);
-
+        pwm_init_trans trans_item;
+        while(seq_mbx.try_get(trans_item)) begin
             // Write access
             if(trans_item.rw == 1'b0) begin
                 $display("Write access");

@@ -6,7 +6,7 @@
 
 class environment;
     axi_sequencer  seq;
-    axi_driver     drv;
+    axi_driver     axi_drv;
 
     // Mailbox
     mailbox        seq_mbox;
@@ -17,20 +17,20 @@ class environment;
     function new(virtual axi_if axi_vif);
         this.seq_mbox = new();
         this.seq      = new(seq_mbox);
-        this.drv      = new(axi_vif, seq_mbox);
+        this.axi_drv  = new(axi_vif, seq_mbox);
     endfunction
 
     task pre_test();
         $display("Driver reset");
-        drv.reset();
+        axi_drv.reset();
     endtask
 
     // Test
     task test();
-        $display("Start testing");
+        $display("PWM init start");
         fork
-            seq.axi_request();
-            drv.axi_read_write();
+            seq.pwm_init();
+            axi_drv.axi_read_write();
         join_any
     endtask
 endclass
