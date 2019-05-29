@@ -7,7 +7,7 @@
 
 `define DRIV_IF axi_vif.DRIVER.driver_cb
 
-class axi_driver;
+class axi_driver #(type TRANS_TYPE);
     virtual axi_if axi_vif;
     mailbox seq_mbx;
 
@@ -40,7 +40,7 @@ class axi_driver;
 
     // AXI transactions
     task axi_read_write();
-        pwm_init_trans trans_item;
+        TRANS_TYPE trans_item;
         while(seq_mbx.try_get(trans_item)) begin
             // Write access
             if(trans_item.rw == 1'b0) begin

@@ -5,11 +5,12 @@
 module testbench_top ();
     // Signals
     bit [7:0]PWM_OUT;
-    bit [31:0]rdata;
+    bit [31:0]rdata[2];
     bit  axi_aclk;
     bit  axi_aresetn;
-    bit  [1:0]bresp;
-    bit  [1:0]rresp;
+    bit  [1:0]bresp[2];
+    bit  [1:0]rresp[2];
+    bit  irq_sig;
 
     // Interface
     axi_if axi_if_inst[1:0](.clk(axi_aclk), .reset(axi_aresetn));
@@ -22,13 +23,13 @@ module testbench_top ();
 
     // Reset
     initial begin
-        axi_test_env = new(axi_if_inst[0]);
+        axi_test_env = new(axi_if_inst);
 
         axi_test_env.module_reset();
         axi_aresetn = 1'b0;
         #1000
         axi_aresetn = 1'b1;
-        axi_test_env.pwm_init();
+        axi_test_env.module_init();
 
         // Wait for 8192 clock cycle
         repeat(8192) begin
@@ -50,43 +51,41 @@ module testbench_top ();
         .s00_axi_wstrb   (4'hF),
         .s00_axi_wvalid  (axi_if_inst[0].aw_valid),
         .s00_axi_wready  (axi_if_inst[0].wdata_ready),
-        .s00_axi_bresp   (bresp),
+        .s00_axi_bresp   (bresp[0]),
         .s00_axi_bvalid  (axi_if_inst[0].b_valid),
         .s00_axi_bready  (axi_if_inst[0].b_ready),
         .s00_axi_araddr  (axi_if_inst[0].mem_addr),
-        //.s00_axi_araddr  (7'h00),
         .s00_axi_arprot  (2'h0),
         .s00_axi_arvalid (axi_if_inst[0].ar_valid),
         .s00_axi_arready (axi_if_inst[0].ar_ready),
-        .s00_axi_rdata   (rdata),
-        //.s00_axi_rdata   (axi_if_inst[0].mem_data),
-        .s00_axi_rresp   (rresp),
+        .s00_axi_rdata   (rdata[0]),
+        .s00_axi_rresp   (rresp[0]),
         .s00_axi_rvalid  (axi_if_inst[0].rdata_valid),
-        .s00_axi_rready  (axi_if_inst[0].rdata_ready)
+        .s00_axi_rready  (axi_if_inst[0].rdata_ready),
                                                                   
         // Ports of Axi Slave Bus Interface S_AXI_INTR
-        //.s_axi_intr_aclk    (axi_aclk),
-        //.s_axi_intr_aresetn (axi_aresetn),
-        //.s_axi_intr_awaddr  (5'h00),
-        //.s_axi_intr_awprot  (2'h0),
-        //.s_axi_intr_awvalid (1'b0),
-        //.s_axi_intr_awready (1'b0),
-        //.s_axi_intr_wdata   (32'h00000000),
-        //.s_axi_intr_wstrb   (4'h0),
-        //.s_axi_intr_wvalid  (1'b0),
-        //.s_axi_intr_wready  (1'b0),
-        //.s_axi_intr_bresp   (1'b0),
-        //.s_axi_intr_bvalid  (1'b0),
-        //.s_axi_intr_bready  (1'b0),
-        //.s_axi_intr_araddr  (1'b0),
-        //.s_axi_intr_arprot  (2'h0),
-        //.s_axi_intr_arvalid (1'b0),
-        //.s_axi_intr_arready (1'b0),
-        //.s_axi_intr_rdata   (32'h00000000),
-        //.s_axi_intr_rresp   (1'b0),
-        //.s_axi_intr_rvalid  (1'b0),
-        //.s_axi_intr_rready  (1'b0),
-        //.irq                (1'b0)
+        .s_axi_intr_aclk    (axi_aclk),
+        .s_axi_intr_aresetn (axi_aresetn),
+        .s_axi_intr_awaddr  (axi_if_inst[1].mem_addr),
+        .s_axi_intr_awprot  (2'h0),
+        .s_axi_intr_awvalid (axi_if_inst[1].aw_valid),
+        .s_axi_intr_awready (axi_if_inst[1].aw_ready),
+        .s_axi_intr_wdata   (axi_if_inst[1].mem_data),
+        .s_axi_intr_wstrb   (4'h0),
+        .s_axi_intr_wvalid  (axi_if_inst[1].aw_valid),
+        .s_axi_intr_wready  (axi_if_inst[1].wdata_ready),
+        .s_axi_intr_bresp   (bresp[1]),
+        .s_axi_intr_bvalid  (axi_if_inst[1].b_valid),
+        .s_axi_intr_bready  (axi_if_inst[1].b_ready),
+        .s_axi_intr_araddr  (axi_if_inst[1].mem_addr),
+        .s_axi_intr_arprot  (2'h0),
+        .s_axi_intr_arvalid (axi_if_inst[1].ar_valid),
+        .s_axi_intr_arready (axi_if_inst[1].ar_ready),
+        .s_axi_intr_rdata   (rdata[1]),
+        .s_axi_intr_rresp   (rresp[1]),
+        .s_axi_intr_rvalid  (axi_if_inst[1].rdata_valid),
+        .s_axi_intr_rready  (axi_if_inst[1].rdata_ready),
+        .irq                (irq_sig)
     );
 endmodule
 

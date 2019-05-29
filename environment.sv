@@ -5,37 +5,47 @@
 `include "axi_driver.sv"
 
 class environment;
-    axi_sequencer  seq;
-    axi_driver     axi_drv;
+    axi_sequencer                seq;
+    axi_driver#(pwm_init_trans)  axi_pwm_drv;  // For PWM
+    axi_driver#(intc_init_trans) axi_intc_drv; // For INTC
 
     // Events
-    event          init_done;
+    event          pwm_init_done;
+    event          intc_init_done;
 
     // Mailbox
-    mailbox        seq_mbox;
+    mailbox        pwm_mbox;
+    mailbox        intc_mbox;
 
     // Interface
     virtual axi_if axi_vif;
 
-    function new(virtual axi_if axi_vif);
-        this.seq_mbox = new();
-        this.seq      = new(seq_mbox);
-        this.axi_drv  = new(axi_vif, seq_mbox, init_done);
+    function new(virtual axi_if axi_vif[1:0]);
+        this.pwm_mbox     = new();
+        this.intc_mbox    = new();
+        this.seq          = new(pwm_mbox, intc_mbox);
+        this.axi_pwm_drv  = new(axi_vif[0], pwm_mbox, pwm_init_done);
+        this.axi_intc_drv = new(axi_vif[1], intc_mbox, intc_init_done);
     endfunction
 
     task module_reset();
-        $display("Driver reset");
-        axi_drv.reset();
+        $display("PWM Driver reset");
+        axi_pwm_drv.reset();
+        $display("INTC Driver reset");
+        axi_intc_drv.reset();
     endtask
 
-    // Test
-    task pwm_init();
-        $display("PWM init start");
+    // Initialization for all block
+    task module_init();
+        $display("Module init start");
         fork
             seq.pwm_init();
-            axi_drv.axi_read_write();
+            seq.intc_init();
+            axi_pwm_drv.axi_read_write();
+            axi_intc_drv.axi_read_write();
         join_any
-        wait(init_done.triggered);
+        wait(pwm_init_done.triggered);
+        wait(intc_init_done.triggered);
     endtask
 endclass
 
