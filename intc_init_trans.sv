@@ -33,8 +33,17 @@ class intc_init_trans;
 
     // Sequential access (NOTE: randomize() doesn't work)
     function new();
+        if (arr_idx < 3) begin
+            target_addr = reg_init_values[arr_idx].reg_addr;
+            if(rw_toggle) begin
+                arr_idx      = arr_idx + 1;
+            end else begin
+                write_data   = reg_init_values[arr_idx].reg_data;
+            end
+            rw          = rw_toggle;
+            rw_toggle   = ~rw_toggle;
         // Read only registers
-        if(arr_idx >= 3) begin
+        end else if(arr_idx < 5) begin
             target_addr = reg_init_values[arr_idx].reg_addr;
             write_data  = 32'h00000000;
             rw          = 1;
@@ -42,19 +51,12 @@ class intc_init_trans;
         end else if(arr_idx >= 5) begin
             target_addr = 7'h00;
             write_data  = 32'h00000000;
+            rw          = 1;
         end
-        target_addr[6:0] = reg_init_values[arr_idx].reg_addr;
-        if(rw_toggle) begin
-            arr_idx      = arr_idx + 1;
-        end else begin
-            write_data   = reg_init_values[arr_idx].reg_data;
-        end
-        rw           = rw_toggle;
-        rw_toggle    = ~rw_toggle;
     endfunction
 
     static function static int get_data_size();
-        return 4 * 2 + 2;
+        return 3 * 2 + 2;
     endfunction
 endclass
 
