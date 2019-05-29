@@ -14,9 +14,13 @@ class axi_driver;
     // Get number of transaction
     const int num_transactions;
 
-    function new(virtual axi_if axi_vif, mailbox seq_mbx);
+    // Driver done event
+    event     trans_done;
+
+    function new(virtual axi_if axi_vif, mailbox seq_mbx, event trans_done);
         this.axi_vif          = axi_vif;
         this.seq_mbx          = seq_mbx;
+        this.trans_done       = trans_done;
     endfunction
 
     // Reset
@@ -81,6 +85,7 @@ class axi_driver;
             @ (posedge axi_vif.clk);
             $display("End access");
         end
+        ->trans_done;
         $display("End task");
     endtask
 endclass

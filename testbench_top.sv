@@ -24,11 +24,17 @@ module testbench_top ();
     initial begin
         axi_test_env = new(axi_if_inst[0]);
 
-        axi_test_env.pre_test();
+        axi_test_env.module_reset();
         axi_aresetn = 1'b0;
         #1000
         axi_aresetn = 1'b1;
-        axi_test_env.test();
+        axi_test_env.pwm_init();
+
+        // Wait for 8192 clock cycle
+        repeat(8192) begin
+            @ (posedge axi_aclk);
+        end
+        $finish;
     end
 
     // Device Under test
@@ -58,7 +64,7 @@ module testbench_top ();
         .s00_axi_rvalid  (axi_if_inst[0].rdata_valid),
         .s00_axi_rready  (axi_if_inst[0].rdata_ready)
                                                                   
-        // Ports of Axi Slave Bus Interface S_AXI_INTR            // Ports of Axi Slave Bus Interface S_AXI_INTR
+        // Ports of Axi Slave Bus Interface S_AXI_INTR
         //.s_axi_intr_aclk    (axi_aclk),
         //.s_axi_intr_aresetn (axi_aresetn),
         //.s_axi_intr_awaddr  (5'h00),
