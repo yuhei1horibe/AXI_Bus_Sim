@@ -44,8 +44,10 @@ class environment;
             axi_pwm_drv.axi_read_write();
             axi_intc_drv.axi_read_write();
         join_any
+
+        // TODO: Combine those 2
+        wait(intc_init_done.triggered)
         wait(pwm_init_done.triggered);
-        wait(intc_init_done.triggered);
     endtask
 endclass
 

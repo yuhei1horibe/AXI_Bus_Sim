@@ -17,7 +17,7 @@
 		// Each bit corresponds to Sensitivity of interrupt :  0 - EDGE, 1 - LEVEL
 		parameter  C_INTR_SENSITIVITY	= 32'hFFFFFFFF,
 		// Each bit corresponds to Sub-type of INTR: [0 - FALLING_EDGE, 1 - RISING_EDGE : if C_INTR_SENSITIVITY is EDGE(0)] and [ 0 - LEVEL_LOW, 1 - LEVEL_LOW : if C_INTR_SENSITIVITY is LEVEL(1) ]
-		parameter  C_INTR_ACTIVE_STATE	= 32'h00000000,
+		parameter  C_INTR_ACTIVE_STATE	= 32'hFFFFFFFF,
 		// Sensitivity of IRQ: 0 - EDGE, 1 - LEVEL
 		parameter integer C_IRQ_SENSITIVITY	= 0,
 		// Sub-type of IRQ: [0 - FALLING_EDGE, 1 - RISING_EDGE : if C_IRQ_SENSITIVITY is EDGE(0)] and [ 0 - LEVEL_LOW, 1 - LEVEL_LOW : if C_IRQ_SENSITIVITY is LEVEL(1) ]
