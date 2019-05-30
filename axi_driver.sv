@@ -49,7 +49,6 @@ class axi_driver #(type TRANS_TYPE);
                 `DRIV_IF.ar_valid    <= 1'b0;
                 `DRIV_IF.aw_valid    <= 1'b1;
                 `DRIV_IF.wdata_valid <= 1'b1;
-                `DRIV_IF.b_ready     <= 1'b1;
                 `DRIV_IF.mem_addr    <= trans_item.target_addr;
                 `DRIV_IF.mem_data    <= trans_item.write_data;
                 $display("Write address: %x", trans_item.target_addr);
@@ -60,28 +59,30 @@ class axi_driver #(type TRANS_TYPE);
                 `DRIV_IF.mem_addr    <= 7'h00;
                 `DRIV_IF.mem_data    <= 32'h00000000;
                 @ (posedge `DRIV_IF.b_valid);
-                `DRIV_IF.b_ready     <= 1'b0;
+                `DRIV_IF.b_ready     <= 1'b1;
             // Read access
             end else begin
                 $display("Read access");
                 // Address request
                 `DRIV_IF.aw_valid    <= 1'b0;
                 `DRIV_IF.ar_valid    <= 1'b1;
-                `DRIV_IF.rdata_ready <= 1'b1;
                 `DRIV_IF.mem_addr    <= trans_item.target_addr;
                 @ (posedge `DRIV_IF.ar_ready);
                 `DRIV_IF.ar_valid    <= 1'b0;
                 `DRIV_IF.mem_addr    <= 7'h00;
                 @ (posedge `DRIV_IF.rdata_valid)
+                `DRIV_IF.rdata_ready <= 1'b1;
                 $display("Read address: %x", `DRIV_IF.mem_addr);
                 $display("Read data: %x", `DRIV_IF.mem_data);
             end
+            @ (posedge axi_vif.clk);
             // Reset
             `DRIV_IF.aw_valid    <= 1'b0;
             `DRIV_IF.ar_valid    <= 1'b0;
             `DRIV_IF.wdata_valid <= 1'b0;
             `DRIV_IF.rdata_ready <= 1'b0;
             `DRIV_IF.b_ready     <= 1'b0;
+            `DRIV_IF.rdata_ready <= 1'b0;
             @ (posedge axi_vif.clk);
             $display("End access");
         end
