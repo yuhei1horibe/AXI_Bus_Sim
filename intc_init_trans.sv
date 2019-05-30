@@ -6,7 +6,7 @@
 // Memory read/write transaction
 class intc_init_trans;
     bit  [6:0]target_addr;
-    bit [31:0]write_data;
+    bit [31:0]mem_data;
     bit  rw;
     static int arr_idx    = 32'h00000000;
     static int rw_toggle  = 1'b0; // 0: write, 1: read
@@ -38,19 +38,19 @@ class intc_init_trans;
             if(rw_toggle) begin
                 arr_idx      = arr_idx + 1;
             end else begin
-                write_data   = reg_init_values[arr_idx].reg_data;
+                mem_data   = reg_init_values[arr_idx].reg_data;
             end
             rw          = rw_toggle;
             rw_toggle   = ~rw_toggle;
         // Read only registers
         end else if(arr_idx < 5) begin
             target_addr = reg_init_values[arr_idx].reg_addr;
-            write_data  = 32'h00000000;
+            mem_data  = 32'h00000000;
             rw          = 1;
             arr_idx     = arr_idx + 1;
         end else if(arr_idx >= 5) begin
             target_addr = 7'h00;
-            write_data  = 32'h00000000;
+            mem_data  = 32'h00000000;
             rw          = 1;
         end
     endfunction

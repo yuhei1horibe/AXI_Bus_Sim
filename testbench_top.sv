@@ -5,7 +5,6 @@
 module testbench_top ();
     // Signals
     bit [7:0]PWM_OUT;
-    bit [31:0]rdata[2];
     bit  axi_aclk;
     bit  axi_aresetn;
     bit  [1:0]bresp[2];
@@ -13,7 +12,7 @@ module testbench_top ();
     bit  irq_sig;
 
     // Interface
-    axi_if axi_if_inst[1:0](.clk(axi_aclk), .reset(axi_aresetn));
+    axi_if axi_if_inst[2](.clk(axi_aclk), .reset(axi_aresetn));
 
     // Class
     environment axi_test_env;
@@ -47,7 +46,7 @@ module testbench_top ();
         .s00_axi_awprot  (2'h0),
         .s00_axi_awvalid (axi_if_inst[0].aw_valid),
         .s00_axi_awready (axi_if_inst[0].aw_ready),
-        .s00_axi_wdata   (axi_if_inst[0].mem_data),
+        .s00_axi_wdata   (axi_if_inst[0].write_data),
         .s00_axi_wstrb   (4'hF),
         .s00_axi_wvalid  (axi_if_inst[0].aw_valid),
         .s00_axi_wready  (axi_if_inst[0].wdata_ready),
@@ -58,7 +57,7 @@ module testbench_top ();
         .s00_axi_arprot  (2'h0),
         .s00_axi_arvalid (axi_if_inst[0].ar_valid),
         .s00_axi_arready (axi_if_inst[0].ar_ready),
-        .s00_axi_rdata   (rdata[0]),
+        .s00_axi_rdata   (axi_if_inst[0].read_data),
         .s00_axi_rresp   (rresp[0]),
         .s00_axi_rvalid  (axi_if_inst[0].rdata_valid),
         .s00_axi_rready  (axi_if_inst[0].rdata_ready),
@@ -70,7 +69,7 @@ module testbench_top ();
         .s_axi_intr_awprot  (2'h0),
         .s_axi_intr_awvalid (axi_if_inst[1].aw_valid),
         .s_axi_intr_awready (axi_if_inst[1].aw_ready),
-        .s_axi_intr_wdata   (axi_if_inst[1].mem_data),
+        .s_axi_intr_wdata   (axi_if_inst[1].write_data),
         .s_axi_intr_wstrb   (4'h0),
         .s_axi_intr_wvalid  (axi_if_inst[1].aw_valid),
         .s_axi_intr_wready  (axi_if_inst[1].wdata_ready),
@@ -81,7 +80,7 @@ module testbench_top ();
         .s_axi_intr_arprot  (2'h0),
         .s_axi_intr_arvalid (axi_if_inst[1].ar_valid),
         .s_axi_intr_arready (axi_if_inst[1].ar_ready),
-        .s_axi_intr_rdata   (rdata[1]),
+        .s_axi_intr_rdata   (axi_if_inst[1].read_data),
         .s_axi_intr_rresp   (rresp[1]),
         .s_axi_intr_rvalid  (axi_if_inst[1].rdata_valid),
         .s_axi_intr_rready  (axi_if_inst[1].rdata_ready),

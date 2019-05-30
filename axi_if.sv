@@ -3,7 +3,8 @@
 `define MEMIF_GUARD
 
 interface axi_if(input logic clk, reset);
-    logic [31:0] mem_data;
+    logic [31:0] write_data;
+    logic [31:0] read_data;
     logic [ 6:0] mem_addr;
     logic        ar_valid;
     logic        aw_valid;
@@ -19,7 +20,8 @@ interface axi_if(input logic clk, reset);
     // Clocking block
     clocking driver_cb @(posedge clk);
         default input #10 output #10;
-        output mem_data;
+        output write_data;
+        input  read_data;
         output mem_addr;
         output ar_valid;
         output aw_valid;
@@ -35,18 +37,19 @@ interface axi_if(input logic clk, reset);
 
     clocking monitor_cb @(posedge clk);
         default input #1 output #1;
-        input mem_data;
-        input mem_addr;
-        input ar_valid;
-        input aw_valid;
-        input ar_ready;
-        input aw_ready;
-        input wdata_valid;
-        input rdata_valid;
-        input wdata_ready;
-        input rdata_ready;
-        input b_valid;
-        input b_ready;
+        input  write_data;
+        input  read_data;
+        input  mem_addr;
+        input  ar_valid;
+        input  aw_valid;
+        input  ar_ready;
+        input  aw_ready;
+        input  wdata_valid;
+        input  rdata_valid;
+        input  wdata_ready;
+        input  rdata_ready;
+        input  b_valid;
+        input  b_ready;
     endclocking
 
     // modport
