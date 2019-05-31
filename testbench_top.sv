@@ -37,6 +37,10 @@ module testbench_top ();
         $finish;
     end
 
+    always @ (posedge irq_sig) begin
+        axi_test_env.all_int_clear();
+    end
+
     // Device Under test
     my_irq_v1_0 dut_irq(
         .PWM_OUT         (PWM_OUT),

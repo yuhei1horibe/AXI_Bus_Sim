@@ -6,24 +6,28 @@
 
 class environment;
     axi_sequencer                seq;
-    axi_driver#(pwm_init_trans)  axi_pwm_drv;  // For PWM
-    axi_driver#(intc_init_trans) axi_intc_drv; // For INTC
+    axi_driver axi_pwm_drv;  // For PWM
+    axi_driver axi_intc_drv; // For INTC
 
-    enum {
-        CMD_MBX,
-        RB_MBX
+    intc_trans intc_int_stat;
+    intc_trans intc_clear_item;
+
+    enum int unsigned {
+        CMD_MBX = 0,
+        RB_MBX,
+        NUM_MBOX_TYPE
     } mbox_type;
 
     // Events
-    event          pwm_init_done;
-    event          intc_init_done;
+    event      pwm_init_done;
+    event      intc_init_done;
 
     // Mailbox
-    mailbox        pwm_mbox[2];
-    mailbox        intc_mbox[2];
+    mailbox    pwm_mbox[NUM_MBOX_TYPE];
+    mailbox    intc_mbox[NUM_MBOX_TYPE];
 
     // Interface
-    virtual axi_if axi_vif;
+    virtual    axi_if axi_vif;
 
     function new(virtual axi_if axi_vif[2]);
         this.pwm_mbox[CMD_MBX]  = new();
@@ -44,8 +48,8 @@ class environment;
 
     // Initialization for all block
     task module_init();
-        pwm_init_trans  pwm_read_back;
-        intc_init_trans intc_read_back;
+        pwm_trans  pwm_read_back;
+        intc_trans intc_read_back;
 
         $display("Module init start");
         fork
@@ -71,6 +75,33 @@ class environment;
             $display("Read address: %x", intc_read_back.target_addr);
             $display("Read data: %x", intc_read_back.mem_data);
         end
+    endtask
+
+    // Read interrupt status, then clear all of them
+    task all_int_clear();
+        fork
+            seq.intc_read_stat();
+            axi_intc_drv.axi_read_write();
+        join_any
+
+        wait(intc_init_done.triggered);
+        while(intc_mbox[RB_MBX].try_get(intc_int_stat)) begin
+            $display("Read address: %x", intc_int_stat.target_addr);
+            $display("Read data: %x", intc_int_stat.mem_data);
+        end
+
+        fork
+            seq.intc_clear_int(intc_int_stat.mem_data);
+            axi_intc_drv.axi_read_write();
+        join_any
+
+        wait(intc_init_done.triggered);
+        $display("INTC read back");
+        while(intc_mbox[RB_MBX].try_get(intc_clear_item)) begin
+            $display("Read address: %x", intc_clear_item.target_addr);
+            $display("Read data: %x", intc_clear_item.mem_data);
+        end
+        wait(intc_init_done.triggered);
     endtask
 endclass
 

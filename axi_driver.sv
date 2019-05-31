@@ -2,11 +2,12 @@
 `ifndef AXIDRV_GUARD
 `define AXIDRV_GUARD
 
+`include "axi_base_trans.sv"
 `include "axi_if.sv"
 
 `define DRIV_IF axi_vif.DRIVER.driver_cb
 
-class axi_driver #(type TRANS_TYPE);
+class axi_driver;
     virtual axi_if axi_vif;
     mailbox seq_mbx;
     mailbox read_back_mbx;
@@ -38,7 +39,7 @@ class axi_driver #(type TRANS_TYPE);
 
     // AXI transactions
     task axi_read_write();
-        TRANS_TYPE trans_item;
+        axi_base_trans trans_item;
         while(seq_mbx.try_get(trans_item)) begin
             // Write access
             if(trans_item.rw == 1'b0) begin
@@ -70,7 +71,7 @@ class axi_driver #(type TRANS_TYPE);
                 `DRIV_IF.mem_addr    <= 7'h00;
                 @ (posedge `DRIV_IF.rdata_valid);
                 `DRIV_IF.rdata_ready <= 1'b1;
-                trans_item.mem_data  <= `DRIV_IF.read_data;
+                trans_item.mem_data  = `DRIV_IF.read_data;
                 $display("Read address: %x", trans_item.target_addr);
                 $display("Read data: %x", `DRIV_IF.read_data);
                 read_back_mbx.put(trans_item);
